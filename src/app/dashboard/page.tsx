@@ -2,14 +2,45 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+    LayoutDashboard,
+    Zap,
+    CheckCircle2,
+    Plus
+} from 'lucide-react';
+
+import Sidebar from '@/components/Sidebar';
+import StatsCard from '@/components/StatsCard';
+import HabitCard from '@/components/HabitCard';
+import EmptyState from '@/components/EmptyState';
+import ProgressBar from '@/components/ProgressBar';
+import QuoteCard from '@/components/QuoteCard';
+import Heatmap from '@/components/Heatmap';
+import FloatingAddButton from '@/components/FloatingAddButton';
+import { triggerConfetti } from '@/lib/confetti';
 
 export default function DashboardPage() {
     const router = useRouter();
     const [authorized, setAuthorized] = useState(false);
-    const [habits, setHabits] = useState<any[]>([]);
+    interface Habit {
+        _id: string;
+        title: string;
+        streak: number;
+        completedToday: boolean;
+        createdAt: string;
+    }
+    const [habits, setHabits] = useState<Habit[]>([]);
     const [newHabitTitle, setNewHabitTitle] = useState('');
     const [loading, setLoading] = useState(true);
     const [toastMessage, setToastMessage] = useState('');
+    const userName = 'User'; // Default fallback
+
+    // Stats
+    const totalHabits = habits.length;
+    const completedTodayCount = habits.filter(h => h.completedToday).length;
+    const completionRate = totalHabits > 0 ? (completedTodayCount / totalHabits) * 100 : 0;
+    const maxStreak = habits.reduce((max, h) => Math.max(max, h.streak || 0), 0);
 
     const showToast = (msg: string) => {
         setToastMessage(msg);
@@ -18,6 +49,8 @@ export default function DashboardPage() {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
+        // Decode token to get user name if possible, or fetch profile
+        // For now, minimal check
         if (!token) {
             router.push('/login');
         } else {
@@ -49,8 +82,8 @@ export default function DashboardPage() {
         router.push('/login');
     };
 
-    const handleAddHabit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleAddHabit = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         if (!newHabitTitle.trim()) return;
 
         const token = localStorage.getItem('token');
@@ -69,6 +102,7 @@ export default function DashboardPage() {
             if (res.ok) {
                 setNewHabitTitle('');
                 fetchHabits(token);
+                showToast("Habit added successfully! 🚀");
             }
         } catch (error) {
             console.error('Failed to add habit', error);
@@ -76,29 +110,22 @@ export default function DashboardPage() {
     };
 
     const handleDeleteHabit = async (id: string) => {
-        console.log('Attempting to delete habit:', id);
-        const token = localStorage.getItem('token');
-        if (!token) {
-            console.error('No token found');
-            return;
-        }
-
         if (!confirm('Are you sure you want to delete this habit?')) return;
 
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
         try {
-            console.log('Sending DELETE request...');
             const res = await fetch(`/api/habits/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            console.log('Delete response status:', res.status);
 
             if (res.ok) {
                 setHabits(habits.filter(h => h._id !== id));
-            } else {
-                console.error('Failed to delete:', await res.text());
+                showToast("Habit deleted.");
             }
         } catch (error) {
             console.error('Failed to delete habit', error);
@@ -133,117 +160,146 @@ export default function DashboardPage() {
         }
     };
 
-    if (!authorized) {
-        return null;
-    }
+    if (!authorized) return null;
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <nav className="bg-white shadow">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
-                        <div className="flex items-center">
-                            <h1 className="text-xl font-bold text-indigo-600">ConsistencyOS</h1>
-                        </div>
-                        <div className="flex items-center">
-                            <span className="mr-4 text-gray-500 text-sm">Welcome</span>
-                            <button
-                                onClick={handleLogout}
-                                className="px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-600 rounded hover:bg-red-50 focus:outline-none transition-colors"
-                            >
-                                Logout
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+        <div className="flex h-screen bg-gray-50">
+            <Sidebar onLogout={handleLogout} />
 
-            <div className="py-10">
-                <header>
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <h1 className="text-3xl font-bold leading-tight text-gray-900">
-                            Your Habits
+            <main className="flex-1 ml-0 md:ml-64 overflow-y-auto">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+                    {/* Header Section */}
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="mb-8"
+                    >
+                        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+                            Welcome back, {userName}
                         </h1>
-                    </div>
-                </header>
-                <main>
-                    <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-8">
-                        {/* Add Habit Form */}
-                        <div className="bg-white px-4 py-5 shadow sm:rounded-lg sm:p-6 mb-8">
-                            <form onSubmit={handleAddHabit} className="flex gap-4">
-                                <input
-                                    type="text"
-                                    value={newHabitTitle}
-                                    onChange={(e) => setNewHabitTitle(e.target.value)}
-                                    placeholder="Enter a new habit..."
-                                    className="flex-grow shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
-                                />
-                                <button
-                                    type="submit"
-                                    disabled={!newHabitTitle.trim()}
-                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    Add Habit
-                                </button>
-                            </form>
+                        <div className="flex items-center mt-2 text-gray-500">
+                            <span>{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+                            <span className="mx-2">•</span>
+                            <span className="text-orange-500 font-medium flex items-center">
+                                <Zap className="w-4 h-4 mr-1 fill-orange-500" />
+                                Keep your streak alive!
+                            </span>
                         </div>
+                    </motion.div>
 
-                        {/* Habits List */}
-                        {loading ? (
-                            <div className="text-center py-10">Loading habits...</div>
-                        ) : habits.length === 0 ? (
-                            <div className="text-center py-10 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
-                                No habits found. Start by adding one!
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                {habits.map((habit) => (
-                                    <div key={habit._id} className="bg-white overflow-hidden shadow rounded-lg flex flex-col justify-between">
-                                        <div className="px-4 py-5 sm:p-6">
-                                            <h3 className="text-lg leading-6 font-medium text-gray-900 truncate">
-                                                {habit.title}
-                                            </h3>
-                                            <p className="mt-1 text-sm text-gray-500">
-                                                Created: {new Date(habit.createdAt).toLocaleDateString()}
-                                            </p>
-                                            <div className="mt-4 flex items-center justify-between">
-                                                <span className="text-sm font-medium text-gray-500">
-                                                    🔥 Streak: {habit.streak || 0} days
-                                                </span>
-                                                <button
-                                                    onClick={() => handleMarkDone(habit._id)}
-                                                    disabled={habit.completedToday}
-                                                    className={`px-3 py-1 rounded-md text-sm font-medium text-white transition-colors ${habit.completedToday
-                                                            ? 'bg-green-500 cursor-default'
-                                                            : 'bg-indigo-600 hover:bg-indigo-700'
-                                                        }`}
-                                                >
-                                                    {habit.completedToday ? 'Completed ✓' : 'Mark Done'}
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div className="bg-gray-50 px-4 py-4 sm:px-6 flex justify-end">
-                                            <button
-                                                onClick={() => handleDeleteHabit(habit._id)}
-                                                className="text-sm font-medium text-red-600 hover:text-red-900 hover:underline"
-                                            >
-                                                Delete
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                    {/* Stats Section */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                        <StatsCard
+                            title="Total Habits"
+                            value={totalHabits}
+                            icon={LayoutDashboard}
+                            delay={0.1}
+                        />
+                        <StatsCard
+                            title="Active Streak"
+                            value={`${maxStreak} Days`}
+                            icon={Zap}
+                            trend="Best Streak"
+                            delay={0.2}
+                        />
+                        <StatsCard
+                            title="Completed Today"
+                            value={completedTodayCount}
+                            icon={CheckCircle2}
+                            description="Keep going!"
+                            delay={0.3}
+                        />
                     </div>
-                </main>
-            </div>
+
+                    {/* Progress Section */}
+                    {totalHabits > 0 && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.4 }}
+                            className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm mb-10"
+                        >
+                            <div className="flex justify-between items-end mb-4">
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900">Today's Progress</h3>
+                                    <p className="text-gray-500 text-sm">You&apos;ve completed {completedTodayCount} out of {totalHabits} habits.</p>
+                                </div>
+                                <div className="text-2xl font-bold text-indigo-600">{Math.round(completionRate)}%</div>
+                            </div>
+                            <ProgressBar value={completionRate} />
+                        </motion.div>
+                    )}
+
+                    {/* Input Section */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className="mb-8"
+                    >
+                        <form onSubmit={handleAddHabit} className="relative">
+                            <input
+                                type="text"
+                                value={newHabitTitle}
+                                onChange={(e) => setNewHabitTitle(e.target.value)}
+                                placeholder="Add a new habit..."
+                                className="w-full px-6 py-4 rounded-xl border border-gray-200 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all pr-32 text-lg"
+                            />
+                            <button
+                                type="submit"
+                                disabled={!newHabitTitle.trim()}
+                                className="absolute right-2 top-2 bottom-2 bg-indigo-600 text-white px-6 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                            >
+                                <Plus className="w-5 h-5 mr-1" />
+                                Add
+                            </button>
+                        </form>
+                    </motion.div>
+
+                    {/* Habits List */}
+                    {loading ? (
+                        <div className="flex justify-center py-20">
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+                        </div>
+                    ) : habits.length === 0 ? (
+                        <EmptyState onAddHabit={() => {
+                            const input = document.querySelector('input[type="text"]') as HTMLInputElement;
+                            if (input) input.focus();
+                        }} />
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <AnimatePresence>
+                                {habits.map((habit, index) => (
+                                    <HabitCard
+                                        key={habit._id}
+                                        habit={habit}
+                                        onComplete={handleMarkDone}
+                                        onDelete={handleDeleteHabit}
+                                        index={index}
+                                    />
+                                ))}
+                            </AnimatePresence>
+                        </div>
+                    )}
+                </div>
+            </main>
 
             {/* Toast Notification */}
-            {toastMessage && (
-                <div className="fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg animate-bounce">
-                    {toastMessage}
-                </div>
-            )}
+            <AnimatePresence>
+                {toastMessage && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 50, x: '-50%' }}
+                        animate={{ opacity: 1, y: 0, x: '-50%' }}
+                        exit={{ opacity: 0, y: 20, x: '-50%' }}
+                        className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 z-50"
+                    >
+                        <CheckCircle2 className="w-5 h-5 text-green-400" />
+                        <span className="font-medium">{toastMessage}</span>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

@@ -28,7 +28,7 @@ export async function calculateStreak(habitId: string, userId: string): Promise<
         return 0;
     }
 
-    let currentExpectedDate = new Date(lastLogDate);
+    const currentExpectedDate = new Date(lastLogDate);
 
     for (const log of logs) {
         // Compare dates as strings YYYY-MM-DD
