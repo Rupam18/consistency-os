@@ -20,6 +20,7 @@ interface SidebarProps {
 const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
     { name: 'Habits', icon: CheckCircle, href: '/dashboard' }, // Placeholder, maybe same page for now
+    { name: 'Challenges', icon: Activity, href: '/challenges' }, // Replaced Analytics with Challenges or added new
     { name: 'Analytics', icon: Activity, href: '/analytics' }, // Future
     { name: 'Profile', icon: User, href: '/profile' },
     { name: 'Settings', icon: Settings, href: '/settings' },
@@ -35,7 +36,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                     <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
                         <CheckCircle className="w-5 h-5 text-white" />
                     </div>
-                    <span className="text-xl font-bold text-gray-900 tracking-tight">ConsistencyOS</span>
+                    <span className="text-xl font-bold text-gray-900 tracking-tight">NoZeroDay</span>
                 </div>
             </div>
 
