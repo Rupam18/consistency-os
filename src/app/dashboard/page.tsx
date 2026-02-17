@@ -1,9 +1,7 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -11,6 +9,12 @@ export default function DashboardPage() {
     const [habits, setHabits] = useState<any[]>([]);
     const [newHabitTitle, setNewHabitTitle] = useState('');
     const [loading, setLoading] = useState(true);
+    const [toastMessage, setToastMessage] = useState('');
+
+    const showToast = (msg: string) => {
+        setToastMessage(msg);
+        setTimeout(() => setToastMessage(''), 3000);
+    };
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -101,8 +105,36 @@ export default function DashboardPage() {
         }
     };
 
+    const handleMarkDone = async (id: string) => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        try {
+            const res = await fetch('/api/habits/complete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ habitId: id }),
+            });
+
+            if (res.ok) {
+                setHabits(habits.map(h => {
+                    if (h._id === id) {
+                        return { ...h, completedToday: true, streak: (h.streak || 0) + 1 };
+                    }
+                    return h;
+                }));
+                showToast('Streak increased! 🔥');
+            }
+        } catch (error) {
+            console.error('Failed to mark done', error);
+        }
+    };
+
     if (!authorized) {
-        return null; // Or a loading spinner while redirecting
+        return null;
     }
 
     return (
@@ -174,6 +206,21 @@ export default function DashboardPage() {
                                             <p className="mt-1 text-sm text-gray-500">
                                                 Created: {new Date(habit.createdAt).toLocaleDateString()}
                                             </p>
+                                            <div className="mt-4 flex items-center justify-between">
+                                                <span className="text-sm font-medium text-gray-500">
+                                                    🔥 Streak: {habit.streak || 0} days
+                                                </span>
+                                                <button
+                                                    onClick={() => handleMarkDone(habit._id)}
+                                                    disabled={habit.completedToday}
+                                                    className={`px-3 py-1 rounded-md text-sm font-medium text-white transition-colors ${habit.completedToday
+                                                            ? 'bg-green-500 cursor-default'
+                                                            : 'bg-indigo-600 hover:bg-indigo-700'
+                                                        }`}
+                                                >
+                                                    {habit.completedToday ? 'Completed ✓' : 'Mark Done'}
+                                                </button>
+                                            </div>
                                         </div>
                                         <div className="bg-gray-50 px-4 py-4 sm:px-6 flex justify-end">
                                             <button
@@ -190,7 +237,13 @@ export default function DashboardPage() {
                     </div>
                 </main>
             </div>
+
+            {/* Toast Notification */}
+            {toastMessage && (
+                <div className="fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg animate-bounce">
+                    {toastMessage}
+                </div>
+            )}
         </div>
     );
 }
-
