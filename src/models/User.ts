@@ -20,6 +20,26 @@ const UserSchema = new Schema({
         type: Date,
         default: Date.now,
     },
+    xp: {
+        type: Number,
+        default: 0,
+    },
+    level: {
+        type: Number,
+        default: 1,
+    },
+    badges: {
+        type: [String],
+        default: [],
+    },
+    currentStreak: {
+        type: Number,
+        default: 0,
+    },
+    lastActiveDate: {
+        type: String,
+        default: null, // "YYYY-MM-DD"
+    },
 });
 
 export default mongoose.models.User || mongoose.model('User', UserSchema);

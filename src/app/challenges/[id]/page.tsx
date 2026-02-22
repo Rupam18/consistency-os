@@ -79,8 +79,12 @@ export default function ChallengeDetailsPage() {
             });
 
             if (res.ok) {
+                const data = await res.json();
                 alert('Marked as done for today!');
                 fetchChallengeDetails(); // Refresh leaderboard
+                if (data.gamification && (data.gamification.leveledUp || data.gamification.newBadges?.length > 0)) {
+                    window.dispatchEvent(new CustomEvent('gamification-event', { detail: data.gamification }));
+                }
             } else {
                 const errData = await res.json();
                 alert(errData.message || 'Failed to mark as done');

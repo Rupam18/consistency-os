@@ -4,6 +4,7 @@ import HabitLog from '@/models/HabitLog';
 import Habit from '@/models/Habit';
 import { verifyToken } from '@/lib/auth';
 import type { JwtPayload } from 'jsonwebtoken';
+import { awardXP } from '@/lib/gamification';
 
 export async function POST(req: NextRequest) {
     try {
@@ -57,7 +58,12 @@ export async function POST(req: NextRequest) {
             completed: true
         });
 
-        return NextResponse.json({ message: 'Habit completed' }, { status: 201 });
+        const gamification = await awardXP(userId as string, 10);
+
+        return NextResponse.json({
+            message: 'Habit completed',
+            gamification
+        }, { status: 201 });
 
     } catch (error) {
         console.error('Error completing habit:', error);

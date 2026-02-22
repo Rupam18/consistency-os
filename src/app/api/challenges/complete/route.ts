@@ -3,6 +3,7 @@ import connectToDatabase from '@/lib/db';
 import ChallengeLog from '@/models/ChallengeLog';
 import ChallengeParticipant from '@/models/ChallengeParticipant';
 import { verifyAuth } from '@/lib/auth';
+import { awardXP } from '@/lib/gamification';
 
 export async function POST(req: Request) {
     try {
@@ -44,7 +45,12 @@ export async function POST(req: Request) {
             completed: true,
         });
 
-        return NextResponse.json(log, { status: 201 });
+        const gamification = await awardXP(userId, 15);
+
+        return NextResponse.json({
+            ...log.toObject(),
+            gamification
+        }, { status: 201 });
     } catch (error: any) {
         return NextResponse.json({ message: error.message || 'Internal Server Error' }, { status: 500 });
     }

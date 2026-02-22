@@ -6,7 +6,8 @@ import {
     User,
     LogOut,
     Settings,
-    Activity
+    Activity,
+    Trophy
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -21,7 +22,7 @@ const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
     { name: 'Habits', icon: CheckCircle, href: '/dashboard' }, // Placeholder, maybe same page for now
     { name: 'Challenges', icon: Activity, href: '/challenges' }, // Replaced Analytics with Challenges or added new
-    { name: 'Analytics', icon: Activity, href: '/analytics' }, // Future
+    { name: 'Leaderboard', icon: Trophy, href: '/leaderboard' },
     { name: 'Profile', icon: User, href: '/profile' },
     { name: 'Settings', icon: Settings, href: '/settings' },
 ];

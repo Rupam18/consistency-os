@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   description: "Build your habits, stay consistent.",
 };
 
+import AchievementPopup from "@/components/AchievementPopup";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,6 +31,7 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         {children}
+        <AchievementPopup />
       </body>
     </html>
   );

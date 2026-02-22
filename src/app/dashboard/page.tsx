@@ -147,6 +147,7 @@ export default function DashboardPage() {
             });
 
             if (res.ok) {
+                const data = await res.json();
                 setHabits(habits.map(h => {
                     if (h._id === id) {
                         return { ...h, completedToday: true, streak: (h.streak || 0) + 1 };
@@ -154,6 +155,9 @@ export default function DashboardPage() {
                     return h;
                 }));
                 showToast('Streak increased! 🔥');
+                if (data.gamification && (data.gamification.leveledUp || data.gamification.newBadges?.length > 0)) {
+                    window.dispatchEvent(new CustomEvent('gamification-event', { detail: data.gamification }));
+                }
             }
         } catch (error) {
             console.error('Failed to mark done', error);
