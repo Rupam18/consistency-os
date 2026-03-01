@@ -31,19 +31,9 @@ export async function GET(
             const userLogs = logs.filter(l => l.userId.toString() === user._id.toString());
             const completedToday = userLogs.some(l => l.date === today);
 
-            // Simple streak calculation (consecutive days ending yesterday or today)
-            // Sort logs by date desc
-            const sortedLogs = userLogs.sort((a, b) => b.date.localeCompare(a.date));
-            let currentStreak = 0;
-            let checkDate = new Date();
-
-            // If completed today, start checking from today. If not, start checking from yesterday.
-            if (!completedToday) {
-                checkDate.setDate(checkDate.getDate() - 1);
-            }
-
-            // This is a simplified streak calculation. For robust streaks, we'd iterate backwards.
-            // For now, let's just count total completions as "score" for simplicity, or implement a basic check.
+            // Use the streak directly from the participant document
+            const currentStreak = p.currentStreak || 0;
+            const longestStreak = p.longestStreak || 0;
             const totalCompletions = userLogs.length;
 
             return {
@@ -52,12 +42,13 @@ export async function GET(
                 email: user.email,
                 completedToday,
                 totalCompletions,
-                // currentStreak // Add this if we implement robust logic
+                currentStreak,
+                longestStreak
             };
         });
 
-        // Sort by total completions desc
-        leaderboard.sort((a, b) => b.totalCompletions - a.totalCompletions);
+        // Sort by current streak desc
+        leaderboard.sort((a, b) => b.currentStreak - a.currentStreak);
 
         return NextResponse.json({
             challenge,

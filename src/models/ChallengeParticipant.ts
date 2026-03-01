@@ -4,12 +4,18 @@ export interface IChallengeParticipant extends Document {
     userId: mongoose.Types.ObjectId;
     challengeId: mongoose.Types.ObjectId;
     joinedAt: Date;
+    currentStreak: number;
+    longestStreak: number;
+    lastCompletedDate: string | null;
 }
 
 const ChallengeParticipantSchema: Schema = new Schema({
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     challengeId: { type: Schema.Types.ObjectId, ref: 'Challenge', required: true },
     joinedAt: { type: Date, default: Date.now },
+    currentStreak: { type: Number, default: 0 },
+    longestStreak: { type: Number, default: 0 },
+    lastCompletedDate: { type: String, default: null },
 });
 
 // Compound index to ensure a user can only join a challenge once

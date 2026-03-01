@@ -15,20 +15,20 @@ export default function Home() {
         <div className="flex flex-wrap items-center justify-around max-w-4xl mt-6 sm:w-full">
           <Link
             href="/login"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-indigo-600 focus:text-indigo-600 bg-white shadow-md hover:shadow-lg transition duration-300 ease-in-out"
+            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-indigo-600 focus:text-indigo-600 bg-white shadow-md hover:shadow-lg transition duration-300 ease-in-out text-gray-900 group"
           >
-            <h3 className="text-2xl font-bold">Login &rarr;</h3>
-            <p className="mt-4 text-xl">
+            <h3 className="text-2xl font-bold group-hover:text-indigo-600 group-focus:text-indigo-600 transition-colors">Login &rarr;</h3>
+            <p className="mt-4 text-xl text-gray-600">
               Access your dashboard and track your progress.
             </p>
           </Link>
 
           <Link
             href="/register"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-indigo-600 focus:text-indigo-600 bg-white shadow-md hover:shadow-lg transition duration-300 ease-in-out"
+            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-indigo-600 focus:text-indigo-600 bg-white shadow-md hover:shadow-lg transition duration-300 ease-in-out text-gray-900 group"
           >
-            <h3 className="text-2xl font-bold">Register &rarr;</h3>
-            <p className="mt-4 text-xl">
+            <h3 className="text-2xl font-bold group-hover:text-indigo-600 group-focus:text-indigo-600 transition-colors">Register &rarr;</h3>
+            <p className="mt-4 text-xl text-gray-600">
               Create a new account and start your journey.
             </p>
           </Link>

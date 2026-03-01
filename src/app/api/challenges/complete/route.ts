@@ -45,6 +45,22 @@ export async function POST(req: Request) {
             completed: true,
         });
 
+        // Streak Calculation
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+        if (participant.lastCompletedDate === yesterdayStr) {
+            participant.currentStreak += 1;
+        } else {
+            // Not completed yesterday, streak breaks or starts at 1
+            participant.currentStreak = 1;
+        }
+
+        participant.longestStreak = Math.max(participant.longestStreak || 0, participant.currentStreak);
+        participant.lastCompletedDate = today;
+        await participant.save();
+
         const gamification = await awardXP(userId, 15);
 
         return NextResponse.json({

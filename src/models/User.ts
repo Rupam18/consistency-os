@@ -40,6 +40,27 @@ const UserSchema = new Schema({
         type: String,
         default: null, // "YYYY-MM-DD"
     },
+    longestStreak: {
+        type: Number,
+        default: 0,
+    },
+    profilePicture: {
+        type: String, // Storing as Base64 for now
+        default: '',
+    },
+    preferences: {
+        theme: { type: String, enum: ['light', 'dark', 'system'], default: 'system' },
+        notifications: {
+            email: { type: Boolean, default: true },
+            push: { type: Boolean, default: true },
+            weeklyReport: { type: Boolean, default: true },
+        },
+        privacy: {
+            profileVisibility: { type: String, enum: ['public', 'private', 'friends'], default: 'public' },
+            showStreak: { type: Boolean, default: true },
+            allowInvites: { type: Boolean, default: true },
+        }
+    }
 });
 
 export default mongoose.models.User || mongoose.model('User', UserSchema);
