@@ -10,7 +10,6 @@ import {
     Plus
 } from 'lucide-react';
 
-import Sidebar from '@/components/Sidebar';
 import StatsCard from '@/components/StatsCard';
 import HabitCard from '@/components/HabitCard';
 import EmptyState from '@/components/EmptyState';
@@ -34,7 +33,7 @@ export default function DashboardPage() {
     const [newHabitTitle, setNewHabitTitle] = useState('');
     const [loading, setLoading] = useState(true);
     const [toastMessage, setToastMessage] = useState('');
-    const userName = 'User'; // Default fallback
+    const [user, setUser] = useState<{ name?: string } | null>(null);
 
     // Stats
     const totalHabits = habits.length;
@@ -56,8 +55,23 @@ export default function DashboardPage() {
         } else {
             setAuthorized(true);
             fetchHabits(token);
+            fetchProfile(token);
         }
     }, [router]);
+
+    const fetchProfile = async (token: string) => {
+        try {
+            const res = await fetch('/api/user/profile', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setUser(data.user);
+            }
+        } catch (error) {
+            console.error('Failed to fetch profile', error);
+        }
+    };
 
     const fetchHabits = async (token: string) => {
         try {
@@ -166,35 +180,39 @@ export default function DashboardPage() {
 
     if (!authorized) return null;
 
-    return (
-        <div className="flex h-screen bg-gray-50">
-            <Sidebar onLogout={handleLogout} />
+    const hour = new Date().getHours();
+    let greeting = 'Good evening';
+    if (hour < 12) greeting = 'Good morning';
+    else if (hour < 18) greeting = 'Good afternoon';
 
-            <main className="flex-1 ml-0 md:ml-64 overflow-y-auto">
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    const firstName = user?.name ? user.name.split(' ')[0] : 'User';
+
+    return (
+        <>
+            <main className="flex-1 w-full">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
 
                     {/* Header Section */}
                     <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
-                        className="mb-8"
                     >
-                        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-                            Welcome back, {userName}
+                        <h1 className="text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">
+                            {greeting}, {firstName} 👋
                         </h1>
-                        <div className="flex items-center mt-2 text-gray-500">
+                        <div className="flex items-center mt-2 text-zinc-500 dark:text-zinc-400">
                             <span>{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</span>
                             <span className="mx-2">•</span>
-                            <span className="text-orange-500 font-medium flex items-center">
-                                <Zap className="w-4 h-4 mr-1 fill-orange-500" />
+                            <span className="text-violet-500 dark:text-violet-400 font-semibold flex items-center">
+                                <Zap className="w-4 h-4 mr-1.5 fill-violet-500 dark:fill-violet-400" />
                                 Keep your streak alive!
                             </span>
                         </div>
                     </motion.div>
 
                     {/* Stats Section */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <StatsCard
                             title="Total Habits"
                             value={totalHabits}
@@ -223,14 +241,14 @@ export default function DashboardPage() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.4 }}
-                            className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm mb-10"
+                            className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm"
                         >
-                            <div className="flex justify-between items-end mb-4">
+                            <div className="flex justify-between items-end mb-5">
                                 <div>
-                                    <h3 className="text-lg font-bold text-gray-900">Today's Progress</h3>
-                                    <p className="text-gray-500 text-sm">You&apos;ve completed {completedTodayCount} out of {totalHabits} habits.</p>
+                                    <h3 className="text-lg font-bold text-zinc-900 dark:text-white">Today's Progress</h3>
+                                    <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">You&apos;ve completed {completedTodayCount} out of {totalHabits} habits.</p>
                                 </div>
-                                <div className="text-2xl font-bold text-indigo-600">{Math.round(completionRate)}%</div>
+                                <div className="text-3xl font-bold text-violet-600 dark:text-violet-400">{Math.round(completionRate)}%</div>
                             </div>
                             <ProgressBar value={completionRate} />
                         </motion.div>
@@ -241,22 +259,21 @@ export default function DashboardPage() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
-                        className="mb-8"
                     >
-                        <form onSubmit={handleAddHabit} className="relative">
+                        <form onSubmit={handleAddHabit} className="relative group">
                             <input
                                 type="text"
                                 value={newHabitTitle}
                                 onChange={(e) => setNewHabitTitle(e.target.value)}
                                 placeholder="Add a new habit..."
-                                className="w-full px-6 py-4 rounded-xl border border-gray-200 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all pr-32 text-lg"
+                                className="w-full px-6 py-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-sm focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 outline-none transition-all pr-32 text-lg"
                             />
                             <button
                                 type="submit"
                                 disabled={!newHabitTitle.trim()}
-                                className="absolute right-2 top-2 bottom-2 bg-indigo-600 text-white px-6 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                                className="absolute right-2 top-2 bottom-2 bg-violet-600 text-white px-6 rounded-xl font-semibold hover:bg-violet-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                             >
-                                <Plus className="w-5 h-5 mr-1" />
+                                <Plus className="w-5 h-5 mr-1.5" />
                                 Add
                             </button>
                         </form>
@@ -265,7 +282,7 @@ export default function DashboardPage() {
                     {/* Habits List */}
                     {loading ? (
                         <div className="flex justify-center py-20">
-                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-violet-600"></div>
                         </div>
                     ) : habits.length === 0 ? (
                         <EmptyState onAddHabit={() => {
@@ -304,6 +321,6 @@ export default function DashboardPage() {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div>
+        </>
     );
 }

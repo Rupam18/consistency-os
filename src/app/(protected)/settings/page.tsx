@@ -1,12 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-    User as UserIcon, Shield, Bell, Lock, Sliders, AlertTriangle,
-    Upload, Loader2, Save, Trash2, CheckCircle2, XCircle
-} from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { User, Lock, Bell, Eye, Database, HelpCircle, Save, AlertTriangle, Monitor, Moon, Sun, MonitorSmartphone, Plus, X, CreditCard, ChevronRight, CheckCircle2, Loader2, Camera, Trash2, XCircle } from 'lucide-react';
 
 type TabId = 'account' | 'security' | 'notifications' | 'privacy' | 'preferences' | 'danger';
 
@@ -30,13 +28,16 @@ export default function SettingsPage() {
     const [confirmPassword, setConfirmPassword] = useState('');
 
     // Preferences & Privacy State
-    const [theme, setTheme] = useState('system');
+    const [themeState, setThemeState] = useState('system'); // Renamed to avoid conflict with useTheme's setTheme
     const [notifications, setNotifications] = useState({ email: true, push: true, weeklyReport: true });
     const [privacy, setPrivacy] = useState({ profileVisibility: 'public', showStreak: true, allowInvites: true });
 
     // Danger Zone State
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deleting, setDeleting] = useState(false);
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const { theme, setTheme } = useTheme();
 
     useEffect(() => {
         fetchUserData();
@@ -61,7 +62,7 @@ export default function SettingsPage() {
                 setProfilePicture(userData.profilePicture || '');
 
                 if (userData.preferences) {
-                    setTheme(userData.preferences.theme || 'system');
+                    setThemeState(userData.preferences.theme || 'system'); // Use themeState
                     if (userData.preferences.notifications) setNotifications(userData.preferences.notifications);
                     if (userData.preferences.privacy) setPrivacy(userData.preferences.privacy);
                 }
@@ -174,13 +175,37 @@ export default function SettingsPage() {
         setSaving(false);
     };
 
+    const handleThemeChange = async (newTheme: string) => {
+        setTheme(newTheme); // Update next-themes context
+        setThemeState(newTheme); // Update local state
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch('/api/settings/preferences', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ theme: newTheme }),
+            });
+
+            if (!res.ok) {
+                console.error("Failed to save theme setting to database");
+                showToast("Failed to save theme to profile.", "error");
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     const savePreferences = async () => {
         setSaving(true);
         try {
             const res = await fetch('/api/settings/preferences', {
                 method: 'PUT',
                 headers: getAuthHeaders(),
-                body: JSON.stringify({ theme, notifications, privacy })
+                body: JSON.stringify({ theme: themeState, notifications, privacy }) // Use themeState
             });
 
             if (res.ok) showToast('Preferences saved successfully', 'success');
@@ -221,16 +246,16 @@ export default function SettingsPage() {
     }
 
     const tabs = [
-        { id: 'account', label: 'Account', icon: UserIcon },
-        { id: 'security', label: 'Security', icon: Shield },
+        { id: 'account', label: 'Account', icon: User },
+        { id: 'security', label: 'Security', icon: Lock },
         { id: 'notifications', label: 'Notifications', icon: Bell },
-        { id: 'privacy', label: 'Privacy', icon: Lock },
-        { id: 'preferences', label: 'Preferences', icon: Sliders },
+        { id: 'privacy', label: 'Privacy', icon: Eye },
+        { id: 'preferences', label: 'Preferences', icon: Monitor },
         { id: 'danger', label: 'Danger Zone', icon: AlertTriangle, danger: true },
-    ] as const;
+    ];
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 p-4 md:p-8 lg:p-12 relative overflow-hidden">
+        <div className="relative overflow-hidden w-full px-4 sm:px-6 lg:px-8 py-10">
             {/* Background Details */}
             <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none" />
 

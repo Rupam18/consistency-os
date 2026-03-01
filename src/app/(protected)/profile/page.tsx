@@ -132,7 +132,7 @@ export default function ProfilePage() {
     const allBadgeKeys = Object.keys(badgesLib);
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 dark:text-gray-100 p-6 md:p-12 relative overflow-hidden">
+        <div className="relative overflow-hidden w-full px-4 sm:px-6 lg:px-8 py-10">
             {/* Background Decorations */}
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/10 dark:bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 dark:bg-purple-500/5 blur-[120px] rounded-full pointer-events-none" />
