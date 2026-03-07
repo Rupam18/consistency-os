@@ -35,6 +35,12 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
+### Admin Account Creation
 
+Run this command locally or on your deployed server to initialize the master admin user:
 
-Run this command to create an admin user.
+```bash
+curl http://localhost:3000/api/admin/setup
+# Or for your live site:
+# curl https://consistency-os.vercel.app/api/admin/setup
+```
