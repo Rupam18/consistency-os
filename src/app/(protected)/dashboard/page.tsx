@@ -190,7 +190,7 @@ export default function DashboardPage() {
     return (
         <>
             <main className="flex-1 w-full">
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4">
 
                     {/* Header Section */}
                     <motion.div
@@ -212,7 +212,7 @@ export default function DashboardPage() {
                     </motion.div>
 
                     {/* Stats Section */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <StatsCard
                             title="Total Habits"
                             value={totalHabits}
@@ -241,7 +241,7 @@ export default function DashboardPage() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.4 }}
-                            className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm"
+                            className="bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm"
                         >
                             <div className="flex justify-between items-end mb-5">
                                 <div>
@@ -290,7 +290,7 @@ export default function DashboardPage() {
                             if (input) input.focus();
                         }} />
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <AnimatePresence>
                                 {habits.map((habit, index) => (
                                     <HabitCard

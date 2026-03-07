@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 };
 
 import AchievementPopup from "@/components/AchievementPopup";
+import { DarkModeShortcut } from "@/components/DarkModeShortcut";
 
 export default function RootLayout({
   children,
@@ -38,6 +39,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <DarkModeShortcut />
         </ThemeProvider>
         <AchievementPopup />
       </body>

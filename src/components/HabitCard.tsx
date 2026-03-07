@@ -26,13 +26,13 @@ export default function HabitCard({ habit, onComplete, onDelete, index }: HabitC
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.3, delay: index * 0.05 }}
             className={cn(
-                "group relative bg-white dark:bg-zinc-900 rounded-2xl border p-5 shadow-sm transition-all duration-200",
+                "group relative bg-white dark:bg-zinc-900 rounded-2xl border p-4 shadow-sm transition-all duration-200",
                 habit.completedToday
                     ? "border-emerald-100 dark:border-emerald-500/20 bg-emerald-50/30 dark:bg-zinc-900"
                     : "border-zinc-200 dark:border-zinc-800 hover:border-violet-200 dark:hover:border-violet-500/30 hover:shadow-md"
             )}
         >
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-start mb-3">
                 <div>
                     <h3 className={cn(
                         "text-lg font-semibold tracking-tight transition-colors",
@@ -61,7 +61,7 @@ export default function HabitCard({ habit, onComplete, onDelete, index }: HabitC
                 </button>
             </div>
 
-            <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center justify-between mt-3">
                 <span className="text-xs text-zinc-400 dark:text-zinc-500 font-medium">
                     Since {new Date(habit.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                 </span>

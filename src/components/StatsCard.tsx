@@ -29,7 +29,7 @@ export default function StatsCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay }}
             className={cn(
-                "bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-6 hover:shadow-md transition-shadow",
+                "bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-4 hover:shadow-md transition-shadow",
                 className
             )}
         >
@@ -43,7 +43,7 @@ export default function StatsCard({
                 </div>
             </div>
             {(trend || description) && (
-                <div className="mt-4 flex items-center text-sm">
+                <div className="mt-3 flex items-center text-sm">
                     {trend && (
                         <span className="text-emerald-500 dark:text-emerald-400 font-medium mr-2">
                             {trend}
