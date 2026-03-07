@@ -1,23 +1,49 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CalendarHeatmap from "react-calendar-heatmap";
 import { Tooltip } from "react-tooltip";
 import { motion } from "framer-motion";
 import "react-calendar-heatmap/dist/styles.css";
 
-const heatmapData = [
-    { date: "2026-03-01", count: 3 },
-    { date: "2026-03-02", count: 2 },
-    { date: "2026-03-03", count: 1 },
-    { date: "2026-03-04", count: 3 },
-    { date: "2026-03-05", count: 0 },
-];
+interface HeatmapData {
+    date: string;
+    count: number;
+}
 
 export function StreakCalendar() {
     const today = new Date();
     const ninetyDaysAgo = new Date();
     ninetyDaysAgo.setDate(today.getDate() - 90);
+
+    const [heatmapData, setHeatmapData] = useState<HeatmapData[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchHeatmapData = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/habits/heatmap', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data: HeatmapData[] = await res.json();
+                    setHeatmapData(data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch heatmap data", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchHeatmapData();
+    }, []);
 
     return (
         <motion.div
@@ -41,36 +67,42 @@ export function StreakCalendar() {
                 transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
                 className="mt-4 w-full overflow-x-auto pb-4"
             >
-                <div className="min-w-[700px] pr-4">
-                    <CalendarHeatmap
-                        startDate={ninetyDaysAgo}
-                        endDate={today}
-                        values={heatmapData}
-                        gutterSize={4}
-                        classForValue={(value: { date?: string; count?: number } | undefined) => {
-                            if (!value || !value.count || value.count === 0) {
-                                return "color-empty";
-                            }
-                            if (value.count === 1) {
-                                return "color-scale-1";
-                            }
-                            if (value.count === 2) {
-                                return "color-scale-2";
-                            }
-                            return "color-scale-3";
-                        }}
-                        tooltipDataAttrs={((value: { date?: string; count?: number } | undefined) => {
-                            if (!value || !value.date) {
-                                return { 'data-tooltip-id': 'streak-tooltip', 'data-tooltip-content': 'No habits completed' } as any;
-                            }
-                            return {
-                                "data-tooltip-id": "streak-tooltip",
-                                "data-tooltip-content": `${value.date}: ${value.count || 0} habits`,
-                            } as any;
-                        }) as any}
-                        showWeekdayLabels={true}
-                    />
-                </div>
+                {loading ? (
+                    <div className="flex justify-center py-10">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
+                    </div>
+                ) : (
+                    <div className="min-w-[700px] pr-4">
+                        <CalendarHeatmap
+                            startDate={ninetyDaysAgo}
+                            endDate={today}
+                            values={heatmapData}
+                            gutterSize={4}
+                            classForValue={(value: { date?: string; count?: number } | undefined) => {
+                                if (!value || !value.count || value.count === 0) {
+                                    return "color-empty";
+                                }
+                                if (value.count === 1) {
+                                    return "color-scale-1";
+                                }
+                                if (value.count === 2) {
+                                    return "color-scale-2";
+                                }
+                                return "color-scale-3";
+                            }}
+                            tooltipDataAttrs={((value: { date?: string; count?: number } | undefined) => {
+                                if (!value || !value.date) {
+                                    return { 'data-tooltip-id': 'streak-tooltip', 'data-tooltip-content': 'No habits completed' } as any;
+                                }
+                                return {
+                                    "data-tooltip-id": "streak-tooltip",
+                                    "data-tooltip-content": `${value.date}: ${value.count || 0} habits`,
+                                } as any;
+                            }) as any}
+                            showWeekdayLabels={true}
+                        />
+                    </div>
+                )}
             </motion.div>
             <Tooltip
                 id="streak-tooltip"
