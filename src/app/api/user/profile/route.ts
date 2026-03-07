@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import connectToDatabase from '@/lib/db';
 import User from '@/models/User';
 import HabitLog from '@/models/HabitLog';
@@ -19,6 +20,10 @@ export async function GET(req: Request) {
             return NextResponse.json({ message: 'User not found' }, { status: 404 });
         }
 
+        // Bypass NextJS schema cache for isAdmin flag
+        const rawUser = await mongoose.connection.collection('users').findOne({ _id: new mongoose.Types.ObjectId(userId) });
+        const isAdmin = rawUser?.isAdmin || false;
+
         // Fetch Gamification Stats
         const totalHabitsCompleted = await HabitLog.countDocuments({ userId, completed: true });
 
@@ -34,6 +39,7 @@ export async function GET(req: Request) {
         return NextResponse.json({
             user: {
                 ...user.toObject(),
+                isAdmin,
                 totalHabitsCompleted,
                 challengesJoined,
                 recentActivity

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Trophy, CheckCircle, Flame, Calendar, Share2, Target, ArrowLeft, Loader2, Clock, Users, Shield, Copy } from 'lucide-react';
+import { Trophy, CheckCircle, Flame, Calendar, Share2, Target, ArrowLeft, Loader2, Clock, Users, Shield, Copy, Globe } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface LeaderboardEntry {

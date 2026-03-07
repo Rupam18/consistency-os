@@ -17,6 +17,8 @@ import ProgressBar from '@/components/ProgressBar';
 import QuoteCard from '@/components/QuoteCard';
 import Heatmap from '@/components/Heatmap';
 import FloatingAddButton from '@/components/FloatingAddButton';
+import { WeeklyProgressChart } from '@/components/WeeklyProgressChart';
+import { StreakCalendar } from '@/components/StreakCalendar';
 import { triggerConfetti } from '@/lib/confetti';
 
 export default function DashboardPage() {
@@ -234,6 +236,24 @@ export default function DashboardPage() {
                             delay={0.3}
                         />
                     </div>
+
+                    {/* Weekly Progress Chart */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.35 }}
+                    >
+                        <WeeklyProgressChart />
+                    </motion.div>
+
+                    {/* Streak Calendar */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                    >
+                        <StreakCalendar />
+                    </motion.div>
 
                     {/* Progress Section */}
                     {totalHabits > 0 && (

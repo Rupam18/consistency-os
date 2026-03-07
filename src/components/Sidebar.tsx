@@ -7,21 +7,23 @@ import {
     LogOut,
     Settings,
     Activity,
-    Trophy
+    Trophy,
+    Shield
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils'; // Assuming cn utility exists or I'll create it
+import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 
 interface SidebarProps {
     onLogout: () => void;
 }
 
-const menuItems = [
+const baseMenuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-    { name: 'Habits', icon: CheckCircle, href: '/dashboard' }, // Placeholder, maybe same page for now
-    { name: 'Challenges', icon: Activity, href: '/challenges' }, // Replaced Analytics with Challenges or added new
+    { name: 'Habits', icon: CheckCircle, href: '/dashboard' },
+    { name: 'Challenges', icon: Activity, href: '/challenges' },
     { name: 'Leaderboard', icon: Trophy, href: '/leaderboard' },
     { name: 'Profile', icon: User, href: '/profile' },
     { name: 'Settings', icon: Settings, href: '/settings' },
@@ -29,6 +31,31 @@ const menuItems = [
 
 export default function Sidebar({ onLogout }: SidebarProps) {
     const pathname = usePathname();
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        const fetchRole = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const res = await fetch('/api/user/profile', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.user?.isAdmin) {
+                        setIsAdmin(true);
+                    }
+                }
+            } catch (err) { }
+        };
+        fetchRole();
+    }, []);
+
+    const menuItems = [...baseMenuItems];
+    if (isAdmin) {
+        menuItems.push({ name: 'Admin Panel', icon: Shield, href: '/admin' });
+    }
 
     return (
         <aside className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 h-screen fixed left-0 top-0 z-30">
@@ -41,7 +68,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                 </div>
             </div>
 
-            <nav className="flex-1 p-4 space-y-1">
+            <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
                 {menuItems.map((item) => {
                     const isActive = pathname === item.href;
                     return (

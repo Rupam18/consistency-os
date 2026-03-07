@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/db';
 import User from '@/models/User';
 import { verifyAuth } from '@/lib/auth';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 
 export async function PUT(req: Request) {
     try {
