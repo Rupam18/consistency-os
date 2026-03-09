@@ -1,16 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Menu, X, Home, Trophy, User, Settings as SettingsIcon } from "lucide-react";
+import { Menu, X, Home, Trophy, User, Settings as SettingsIcon, LogOut } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
     const [open, setOpen] = useState(false);
     const pathname = usePathname();
+    const router = useRouter();
     const { setTheme } = useTheme();
+
+    const handleLogout = () => {
+        setOpen(false);
+        localStorage.removeItem('token');
+        router.push('/login');
+    };
 
     useEffect(() => {
         // Sync theme on initial layout load
@@ -97,6 +104,16 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                                         );
                                     })}
                                 </nav>
+
+                                <div className="mt-8 pt-6 border-t border-zinc-200 dark:border-zinc-800">
+                                    <button
+                                        onClick={handleLogout}
+                                        className="flex w-full items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
+                                    >
+                                        <LogOut className="w-5 h-5" />
+                                        Logout
+                                    </button>
+                                </div>
                             </div>
                         </motion.div>
                     </>
@@ -131,6 +148,16 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                             );
                         })}
                     </nav>
+
+                    <div className="mt-8 pt-6 border-t border-zinc-200 dark:border-zinc-800">
+                        <button
+                            onClick={handleLogout}
+                            className="flex w-full items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
+                        >
+                            <LogOut className="w-5 h-5" />
+                            Logout
+                        </button>
+                    </div>
                 </div>
             </aside>
 

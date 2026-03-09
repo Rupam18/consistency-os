@@ -11,6 +11,7 @@ interface HabitCardProps {
         streak: number;
         completedToday: boolean;
         createdAt: string;
+        isChallenge?: boolean;
     };
     onComplete: (id: string) => void;
     onDelete: (id: string) => void;
@@ -35,10 +36,15 @@ export default function HabitCard({ habit, onComplete, onDelete, index }: HabitC
             <div className="flex justify-between items-start mb-3">
                 <div>
                     <h3 className={cn(
-                        "text-lg font-semibold tracking-tight transition-colors",
+                        "text-lg font-semibold tracking-tight transition-colors flex items-center gap-2",
                         habit.completedToday ? "text-zinc-700 dark:text-zinc-300" : "text-zinc-900 dark:text-white"
                     )}>
                         {habit.title}
+                        {habit.isChallenge && (
+                            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                                Challenge
+                            </span>
+                        )}
                     </h3>
                     <div className="flex items-center mt-1 space-x-2">
                         <div className={cn(
@@ -52,13 +58,15 @@ export default function HabitCard({ habit, onComplete, onDelete, index }: HabitC
                         </div>
                     </div>
                 </div>
-                <button
-                    onClick={() => onDelete(habit._id)}
-                    className="text-zinc-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 opacity-0 group-hover:opacity-100"
-                    title="Delete Habit"
-                >
-                    <Trash2 className="w-4 h-4" />
-                </button>
+                {!habit.isChallenge && (
+                    <button
+                        onClick={() => onDelete(habit._id)}
+                        className="text-zinc-400 hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
+                        title="Delete Habit"
+                    >
+                        <Trash2 className="w-5 h-5 lg:w-4 lg:h-4 text-red-500 lg:text-zinc-400" />
+                    </button>
+                )}
             </div>
 
             <div className="flex items-center justify-between mt-3">
@@ -98,6 +106,6 @@ export default function HabitCard({ habit, onComplete, onDelete, index }: HabitC
                     transition={{ duration: 1 }}
                 />
             </div>
-        </motion.div>
+        </motion.div >
     );
 }

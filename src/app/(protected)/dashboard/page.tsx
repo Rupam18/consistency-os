@@ -30,12 +30,14 @@ export default function DashboardPage() {
         streak: number;
         completedToday: boolean;
         createdAt: string;
+        isChallenge?: boolean;
     }
     const [habits, setHabits] = useState<Habit[]>([]);
     const [newHabitTitle, setNewHabitTitle] = useState('');
     const [loading, setLoading] = useState(true);
     const [toastMessage, setToastMessage] = useState('');
     const [user, setUser] = useState<{ name?: string } | null>(null);
+    const [habitToDelete, setHabitToDelete] = useState<string | null>(null);
 
     // Stats
     const totalHabits = habits.length;
@@ -125,14 +127,18 @@ export default function DashboardPage() {
         }
     };
 
-    const handleDeleteHabit = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this habit?')) return;
+    const confirmDeleteHabit = (id: string) => {
+        setHabitToDelete(id);
+    };
+
+    const handleDeleteHabit = async () => {
+        if (!habitToDelete) return;
 
         const token = localStorage.getItem('token');
         if (!token) return;
 
         try {
-            const res = await fetch(`/api/habits/${id}`, {
+            const res = await fetch(`/api/habits/${habitToDelete}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -140,26 +146,31 @@ export default function DashboardPage() {
             });
 
             if (res.ok) {
-                setHabits(habits.filter(h => h._id !== id));
+                setHabits(habits.filter(h => h._id !== habitToDelete));
                 showToast("Habit deleted.");
             }
         } catch (error) {
             console.error('Failed to delete habit', error);
+        } finally {
+            setHabitToDelete(null);
         }
     };
 
-    const handleMarkDone = async (id: string) => {
+    const handleMarkDone = async (id: string, isChallenge?: boolean) => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
         try {
-            const res = await fetch('/api/habits/complete', {
+            const endpoint = isChallenge ? '/api/challenges/complete' : '/api/habits/complete';
+            const bodyPayload = isChallenge ? { challengeId: id } : { habitId: id };
+
+            const res = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ habitId: id }),
+                body: JSON.stringify(bodyPayload),
             });
 
             if (res.ok) {
@@ -316,8 +327,8 @@ export default function DashboardPage() {
                                     <HabitCard
                                         key={habit._id}
                                         habit={habit}
-                                        onComplete={handleMarkDone}
-                                        onDelete={handleDeleteHabit}
+                                        onComplete={() => handleMarkDone(habit._id, habit.isChallenge)}
+                                        onDelete={confirmDeleteHabit}
                                         index={index}
                                     />
                                 ))}
@@ -338,6 +349,48 @@ export default function DashboardPage() {
                     >
                         <CheckCircle2 className="w-5 h-5 text-green-400" />
                         <span className="font-medium">{toastMessage}</span>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Delete Confirmation Modal */}
+            <AnimatePresence>
+                {habitToDelete && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+                        onClick={() => setHabitToDelete(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-full max-w-md overflow-hidden rounded-2xl bg-white dark:bg-zinc-900 shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6"
+                        >
+                            <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">
+                                Delete Habit
+                            </h3>
+                            <p className="text-zinc-500 dark:text-zinc-400 mb-6">
+                                Are you sure you want to delete this habit? All of its streak data and history will be permanently lost.
+                            </p>
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    onClick={() => setHabitToDelete(null)}
+                                    className="px-4 py-2 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleDeleteHabit}
+                                    className="px-4 py-2 rounded-xl text-sm font-semibold bg-red-500 hover:bg-red-600 text-white shadow-sm transition-colors"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
