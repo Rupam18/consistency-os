@@ -71,6 +71,8 @@ export default function DashboardPage() {
             if (res.ok) {
                 const data = await res.json();
                 setUser(data.user);
+            } else {
+                console.error(`Dashboard profile fetch failed: ${res.status}`);
             }
         } catch (error) {
             console.error('Failed to fetch profile', error);

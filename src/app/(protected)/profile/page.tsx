@@ -112,11 +112,47 @@ export default function ProfilePage() {
     };
 
     if (loading) {
-        return <div className="min-h-screen flex items-center justify-center dark:bg-zinc-950 dark:text-white">Loading...</div>;
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center dark:bg-zinc-950 dark:text-white gap-4">
+                <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                <p className="text-zinc-500 animate-pulse font-medium">Loading your profile...</p>
+            </div>
+        );
     }
 
-    if (!user) {
-        return <div className="min-h-screen flex items-center justify-center dark:bg-zinc-950 dark:text-white">Profile not found.</div>;
+    if (error || !user) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center dark:bg-zinc-950 dark:text-white gap-6 px-4 text-center">
+                <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center text-red-500">
+                    <X className="w-10 h-10" />
+                </div>
+                <div className="max-w-md mx-auto">
+                    <h2 className="text-2xl font-bold mb-2 text-white">{error || "Profile not found"}</h2>
+                    <p className="text-zinc-400">
+                        We couldn't retrieve your profile. This is usually due to a database connection issue or an expired session.
+                    </p>
+                    {error && (
+                        <div className="mt-4 p-3 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-zinc-500 font-mono break-all">
+                            DEBUG: {error}
+                        </div>
+                    )}
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                        onClick={() => fetchProfile()}
+                        className="px-8 py-3 bg-indigo-600 text-white rounded-2xl hover:bg-indigo-700 transition-all font-bold shadow-lg shadow-indigo-500/20 active:scale-95"
+                    >
+                        Try Again
+                    </button>
+                    <button
+                        onClick={() => router.push('/dashboard')}
+                        className="px-8 py-3 bg-zinc-900 border border-zinc-800 text-zinc-300 rounded-2xl hover:bg-zinc-800 transition-all font-bold active:scale-95"
+                    >
+                        Dashboard
+                    </button>
+                </div>
+            </div>
+        );
     }
 
     // Calculate XP Progress
