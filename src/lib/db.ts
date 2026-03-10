@@ -28,6 +28,8 @@ async function connectToDatabase() {
         throw new Error('Please define the MONGO_URI environment variable inside .env.local');
     }
 
+    console.log('Connecting to DB with URI starting with:', MONGO_URI.substring(0, 20) + '...');
+
     if (cached.conn) {
         return cached.conn;
     }
