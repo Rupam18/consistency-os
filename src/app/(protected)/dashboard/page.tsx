@@ -18,7 +18,7 @@ import QuoteCard from '@/components/QuoteCard';
 import Heatmap from '@/components/Heatmap';
 import FloatingAddButton from '@/components/FloatingAddButton';
 import { WeeklyProgressChart } from '@/components/WeeklyProgressChart';
-import { StreakCalendar } from '@/components/StreakCalendar';
+import { ConsistencyStreakCalendar } from '@/components/ConsistencyStreakCalendar';
 import { triggerConfetti } from '@/lib/confetti';
 
 export default function DashboardPage() {
@@ -263,7 +263,7 @@ export default function DashboardPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
                     >
-                        <StreakCalendar />
+                        <ConsistencyStreakCalendar />
                     </motion.div>
 
                     {/* Progress Section */}

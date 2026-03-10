@@ -9,6 +9,7 @@ export default function ProfilePage() {
     const router = useRouter();
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     // Edit Modal State
     const [isEditing, setIsEditing] = useState(false);
@@ -23,6 +24,7 @@ export default function ProfilePage() {
     }, [router]);
 
     const fetchProfile = async () => {
+        setError(null);
         try {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -41,9 +43,13 @@ export default function ProfilePage() {
                 setEditProfilePic(data.user.profilePicture || '');
             } else if (res.status === 401) {
                 router.push('/login');
+            } else {
+                const data = await res.json();
+                setError(data.message || `Error ${res.status}: Failed to load profile`);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to load profile", error);
+            setError("Connection error. Please check your internet or database status.");
         } finally {
             setLoading(false);
         }

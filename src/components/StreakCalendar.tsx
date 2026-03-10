@@ -13,8 +13,8 @@ interface HeatmapData {
 
 export function StreakCalendar() {
     const today = new Date();
-    const ninetyDaysAgo = new Date();
-    ninetyDaysAgo.setDate(today.getDate() - 90);
+    const sixtyDaysAgo = new Date();
+    sixtyDaysAgo.setDate(today.getDate() - 60);
 
     const [heatmapData, setHeatmapData] = useState<HeatmapData[]>([]);
     const [loading, setLoading] = useState(true);
@@ -50,14 +50,14 @@ export function StreakCalendar() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="flex w-full flex-col gap-4 rounded-xl border border-white/10 bg-neutral-900/50 p-6 shadow-md backdrop-blur-sm"
+            className="flex w-full flex-col gap-1 rounded-xl border border-white/10 bg-neutral-900/50 py-2 px-4 shadow-md backdrop-blur-sm"
         >
-            <div className="flex flex-col space-y-1.5">
-                <h3 className="text-xl font-semibold leading-none tracking-tight text-white">
+            <div className="flex flex-col space-y-1">
+                <h3 className="text-lg font-semibold leading-none tracking-tight text-white">
                     Consistency Streak
                 </h3>
-                <p className="text-sm text-neutral-400">
-                    Your progress over the last 90 days
+                <p className="text-xs text-neutral-400">
+                    Your progress over the last 60 days
                 </p>
             </div>
 
@@ -65,19 +65,19 @@ export function StreakCalendar() {
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-                className="mt-4 w-full overflow-x-auto pb-4"
+                className="w-full overflow-x-auto"
             >
                 {loading ? (
-                    <div className="flex justify-center py-10">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
+                    <div className="flex justify-center py-4">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-violet-600"></div>
                     </div>
                 ) : (
-                    <div className="min-w-[700px] pr-4">
+                    <div className="min-w-[500px]">
                         <CalendarHeatmap
-                            startDate={ninetyDaysAgo}
+                            startDate={sixtyDaysAgo}
                             endDate={today}
                             values={heatmapData}
-                            gutterSize={4}
+                            gutterSize={2}
                             classForValue={(value: { date?: string; count?: number } | undefined) => {
                                 if (!value || !value.count || value.count === 0) {
                                     return "color-empty";
